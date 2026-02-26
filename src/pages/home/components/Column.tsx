@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import TaskCard from "./TaskCard";
 import type { ColumnState } from "../../../types/boardTypes";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 
 interface ColumnProps {
@@ -44,9 +44,9 @@ function Column({
 
   return (
     <Box sx={{ backgroundColor: "#ebf0f0", borderRadius: 2, p: 2, width: 400 }}>
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        {type} ({column.total})
-      </h2>
+        <Typography variant="h6" component="div" sx={{ mb: 2, fontWeight: "bold" }}>
+            {type} ({column.total})
+        </Typography>
 
       <Droppable droppableId={type}>
         {(provided) => (

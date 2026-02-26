@@ -7,11 +7,11 @@ import { useEdit } from "../../../hooks/useEdit";
 import { useCreate } from "../../../hooks/useCreate";
 import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 import { numbersOfTasks } from "../../../redux/slice";
-import  { Columns } from "../../../types/boardTypes";
+import { Columns } from "../../../types/boardTypes";
 import type { Task } from "../../../types/task";
 import Column from "./Column";
 import TaskDialog from "./TaskDialog";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 
 function Board() {
   const [search] = useQuerySearch();
@@ -174,15 +174,15 @@ function Board() {
       const minIndex = Math.min(source.index, destination.index);
       const maxIndex = Math.max(source.index, destination.index);
       const tasksToUpdate = updatedTasks.slice(minIndex, maxIndex + 1);
-      
+
       Promise.all(
         tasksToUpdate.map((task) =>
           editTaskMutation.mutateAsync({
             endpoint: "tasks",
             id: task._id,
             data: { order: task.order },
-          })
-        )
+          }),
+        ),
       ).catch((error) => {
         console.error("Failed to update tasks", error);
       });
@@ -191,7 +191,11 @@ function Board() {
     }
 
     const destTasks = [...destColumn.tasks];
-    const movedTask = { ...removed, column: destination.droppableId, order: destination.index };
+    const movedTask = {
+      ...removed,
+      column: destination.droppableId,
+      order: destination.index,
+    };
     destTasks.splice(destination.index, 0, movedTask);
 
     const updatedSourceTasks = sourceTasks.map((task, index) => ({
@@ -225,11 +229,11 @@ function Board() {
       editTaskMutation.mutateAsync({
         endpoint: "tasks",
         id: removed._id,
-        data: { 
+        data: {
           column: destination.droppableId,
           order: destination.index,
         },
-      })
+      }),
     );
 
     const sourceTasksToUpdate = updatedSourceTasks.slice(source.index);
@@ -239,7 +243,7 @@ function Board() {
           endpoint: "tasks",
           id: task._id,
           data: { order: task.order },
-        })
+        }),
       );
     });
 
@@ -250,7 +254,7 @@ function Board() {
           endpoint: "tasks",
           id: task._id,
           data: { order: task.order },
-        })
+        }),
       );
     });
 
@@ -261,9 +265,18 @@ function Board() {
 
   return (
     <>
-      <Button sx={{ m: 2 }} variant="contained" onClick={handleCreateOpen}>
-        + New Task
-      </Button>
+      <Box sx={{ display: "flex", alignItems: "center", background: "#EBF0F0", my: 2 }}>
+        <Button
+          sx={{ m: 1.5, borderRadius: 2,backgroundColor: "#31b345", color: "#fff", "&:hover": { backgroundColor: "#3c64d7" } }}
+          variant="contained"
+          onClick={handleCreateOpen}>
+          + New Task
+        </Button>
+
+        <Typography sx={{ ml: 2,fontWeight: 600, color: "#1F2937" }}>
+          Create and manage your tasks efficiently.
+        </Typography>
+      </Box>
 
       <TaskDialog
         open={openCreate}
@@ -278,10 +291,8 @@ function Board() {
           sx={{
             display: "flex",
             gap: 2,
-            p: 2,
             height: "90vh",
-          }}
-        >
+          }}>
           <Column
             column={columns.Backlog}
             type="Backlog"
