@@ -33,7 +33,6 @@ function Board() {
 
   const [openCreate, setOpenCreate] = useState(false);
 
-  // Infinite scroll hooks for each column
   const backlogData = useInfiniteScroll({
     endpoint: `tasks?column=Backlog&search=${search}`,
     queryKey: ["fetchBacklog", search],
@@ -79,7 +78,6 @@ function Board() {
   };
 
   useEffect(() => {
-    // Don't overwrite local drag changes
     if (hasLocalChangesRef.current) return;
 
     const updatedColumns: Columns = {
@@ -156,7 +154,6 @@ function Board() {
 
     if (!removed) return;
 
-    // Optimistic update for same column reordering
     if (source.droppableId === destination.droppableId) {
       sourceTasks.splice(destination.index, 0, removed);
 
@@ -165,7 +162,6 @@ function Board() {
         order: index,
       }));
 
-      // Update local state immediately
       hasLocalChangesRef.current = true;
       setColumns((prev) => ({
         ...prev,
@@ -175,7 +171,6 @@ function Board() {
         },
       }));
 
-      // Update all affected tasks via mutation (no refetch)
       const minIndex = Math.min(source.index, destination.index);
       const maxIndex = Math.max(source.index, destination.index);
       const tasksToUpdate = updatedTasks.slice(minIndex, maxIndex + 1);
@@ -195,24 +190,20 @@ function Board() {
       return;
     }
 
-    // Cross-column move
     const destTasks = [...destColumn.tasks];
     const movedTask = { ...removed, column: destination.droppableId, order: destination.index };
     destTasks.splice(destination.index, 0, movedTask);
 
-    // Recalculate orders for source column (items shift up after removal)
     const updatedSourceTasks = sourceTasks.map((task, index) => ({
       ...task,
       order: index,
     }));
 
-    // Recalculate orders for destination column
     const updatedDestTasks = destTasks.map((task, index) => ({
       ...task,
       order: index,
     }));
 
-    // Update local state immediately
     hasLocalChangesRef.current = true;
     setColumns((prev) => ({
       ...prev,
@@ -228,10 +219,8 @@ function Board() {
       },
     }));
 
-    // Update all affected tasks via mutation (no refetch)
     const updatePromises: Promise<unknown>[] = [];
 
-    // Update moved task with new column and position
     updatePromises.push(
       editTaskMutation.mutateAsync({
         endpoint: "tasks",
@@ -243,7 +232,6 @@ function Board() {
       })
     );
 
-    // Update all tasks in source column that shifted up (from source.index onwards)
     const sourceTasksToUpdate = updatedSourceTasks.slice(source.index);
     sourceTasksToUpdate.forEach((task) => {
       updatePromises.push(
@@ -255,7 +243,6 @@ function Board() {
       );
     });
 
-    // Update all tasks in destination column that shifted down (from destination.index + 1 onwards)
     const destTasksToUpdate = updatedDestTasks.slice(destination.index + 1);
     destTasksToUpdate.forEach((task) => {
       updatePromises.push(
